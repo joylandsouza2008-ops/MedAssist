@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MedAssist — Team Orbit</title>
+  <meta name="description" content="Turn a prescription into a plain-language schedule, cheaper generics, and nearby pharmacy checks." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --surface: #fffcf7;
+      --raised: #eee8dc;
+      --fg: #1a1916;
+      --muted: #6b6560;
+      --subtle: #8a837c;
+      --primary: #0d6e6e;
+      --primary-fg: #f4f1ea;
+      --border: #e4ddd2;
+      --danger: #b42318;
+      --success: #067647;
+      --warn: #9a6700;
+      --radius: 12px;
+      --font: "Outfit", system-ui, sans-serif;
+      --display: "Fraunces", Georgia, serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in srgb, var(--bg) 90%, transparent);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    .bar {
+      max-width: 880px; margin: 0 auto;
+      padding: 0.75rem 1rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-family: var(--display); font-weight: 600; font-size: 1.15rem;
+      color: var(--fg); text-decoration: none;
+    }
+    .logo-mark {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--primary); color: var(--primary-fg);
+      display: grid; place-items: center; font-size: 1.1rem; font-weight: 700;
+    }
+    nav { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+    nav a, nav button {
+      border: none; background: transparent; cursor: pointer;
+      font: inherit; color: var(--muted); padding: 0.45rem 0.75rem; border-radius: 8px;
+    }
+    nav a:hover, nav button:hover, nav a.active, nav button.active {
+      background: var(--raised); color: var(--fg); text-decoration: none;
+    }
+    main { max-width: 880px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+    h1 {
+      font-family: var(--display); font-weight: 600;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      line-height: 1.2; margin: 0 0 0.75rem;
+    }
+    h2 { font-family: var(--display); font-size: 1.25rem; margin: 0 0 0.5rem; }
+    .eyebrow {
+      color: var(--primary); font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 0.5rem;
+    }
+    .lead { color: var(--muted); font-size: 1.05rem; margin: 0 0 1.5rem; max-width: 36rem; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem;
+    }
+    .grid-2 { display: grid; gap: 0.75rem; }
+    @media (min-width: 640px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .feature { display: flex; gap: 0.75rem; }
+    .feature .icon {
+      flex-shrink: 0; width: 36px; height: 36px; border-radius: 8px;
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary); display: grid; place-items: center; font-size: 1rem;
+    }
+    label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 0.35rem; }
+    textarea, input[type="text"] {
+      width: 100%; font: inherit; color: var(--fg);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.75rem 0.9rem;
+    }
+    textarea { min-height: 160px; resize: vertical; }
+    textarea:focus, input:focus {
+      outline: 2px solid color-mix(in srgb, var(--primary) 35%, transparent);
+      border-color: var(--primary);
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.75rem 0; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+      border: none; cursor: pointer; font: inherit; font-weight: 500;
+      border-radius: 10px; padding: 0.65rem 1.1rem;
+      transition: transform 0.12s ease, opacity 0.12s ease;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--primary); color: var(--primary-fg); }
+    .btn-primary:hover { opacity: 0.92; }
+    .btn-secondary { background: var(--surface); color: var(--fg); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--raised); }
+    .btn-lg { padding: 0.8rem 1.25rem; font-size: 1.05rem; }
+    .hint { font-size: 0.8rem; color: var(--subtle); margin: 0.5rem 0 0; }
+    .error { color: var(--danger); font-size: 0.9rem; margin: 0.5rem 0 0; }
+    .badge {
+      display: inline-flex; align-items: center;
+      border-radius: 999px; padding: 0.15rem 0.6rem;
+      font-size: 0.75rem; font-weight: 500;
+      background: var(--raised); color: var(--fg);
+    }
+    .badge-ok { background: color-mix(in srgb, var(--success) 15%, white); color: var(--success); }
+    .badge-warn { background: color-mix(in srgb, var(--warn) 18%, white); color: var(--warn); }
+    .badge-danger { background: color-mix(in srgb, var(--danger) 12%, white); color: var(--danger); }
+    .tabs { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 1rem 0; }
+    .tab {
+      border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+      border-radius: 999px; padding: 0.4rem 0.9rem; cursor: pointer; font: inherit; font-size: 0.9rem;
+    }
+    .tab.active { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+    .slot { margin-bottom: 1rem; }
+    .slot h3 {
+      margin: 0 0 0.5rem; font-size: 0.95rem; color: var(--primary);
+      text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .med-item {
+      padding: 0.75rem 0; border-bottom: 1px solid var(--border);
+    }
+    .med-item:last-child { border-bottom: none; }
+    .med-item strong { display: block; }
+    .med-item span { font-size: 0.9rem; color: var(--muted); }
+    .save { color: var(--success); font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 500; }
+    footer {
+      border-top: 1px solid var(--border); text-align: center;
+      padding: 1.25rem; font-size: 0.8rem; color: var(--subtle);
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    .barcode-list button {
+      width: 100%; text-align: left; display: flex; justify-content: space-between;
+      gap: 0.5rem; padding: 0.7rem 0.9rem; margin-bottom: 0.4rem;
+      border: 1px solid var(--border); background: var(--surface);
+      border-radius: 10px; cursor: pointer; font: inherit;
+    }
+    .barcode-list button:hover { background: var(--raised); }
+    .mono { font-family: ui-monospace, monospace; font-size: 0.8rem; color: var(--subtle); }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <a class="logo" href="#" onclick="showPage('home'); return false;">
+        <span class="logo-mark">+</span>
+        MedAssist
+      </a>
+      <nav>
+        <button type="button" class="active" data-page="home" onclick="showPage('home')">Read Rx</button>
+        <button type="button" data-page="scan" onclick="showPage('scan')">Scan</button>
+        <button type="button" data-page="about" onclick="showPage('about')">About</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="page-home" class="page active">
+      <p class="eyebrow">Orbit · Agentic AI for billions</p>
+      <h1>Leave the hospital knowing what to take, and where.</h1>
+      <p class="lead">
+        MedAssist reads a prescription or discharge summary and turns it into a schedule,
+        cheaper same-salt options, and a pharmacy check — without diagnosing.
+      </p>
+
+      <div class="card">
+        <div class="row">
+          <button type="button" class="btn btn-secondary" onclick="loadSample('discharge')">Sample discharge</button>
+          <button type="button" class="btn btn-secondary" onclick="loadSample('infection')">Sample clinic Rx</button>
+        </div>
+        <label for="rx-text">Prescription or discharge summary</label>
+        <textarea id="rx-text" placeholder="Paste a discharge summary or prescription here…"></textarea>
+        <div class="row" style="justify-content: space-between; margin-top: 1rem;">
+          <p class="hint" style="margin:0">Works offline with demo Indian medicine data.</p>
+          <button type="button" class="btn btn-primary btn-lg" onclick="analyze()">Explain prescription</button>
+        </div>
+        <p id="rx-error" class="error hidden"></p>
+      </div>
+
+      <div class="grid-2" style="margin-top: 1.25rem;">
+        <div class="card feature">
+          <div class="icon">1</div>
+          <div>
+            <strong>Explain my discharge</strong>
+            <p class="hint">Day-by-day schedule + questions for the doctor.</p>
+          </div>
+        </div>
+        <div class="card feature">
+          <div class="icon">2</div>
+          <div>
+            <strong>Find cheaper medicine</strong>
+            <p class="hint">Same-salt generics and Jan Aushadhi bands.</p>
+          </div>
+        </div>
+        <div class="card feature">
+          <div class="icon">3</div>
+          <div>
+            <strong>Check before you go</strong>
+            <p class="hint">Demo Mangalore pharmacy stock.</p>
+          </div>
+        </div>
+        <div class="card feature">
+          <div class="icon">4</div>
+          <div>
+            <strong>Scan a medicine</strong>
+            <p class="hint">Barcode or name lookup for salts &amp; savings.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="page-result" class="page">
+      <p class="eyebrow">Result</p>
+      <h1 id="result-title">Your medicine plan</h1>
+      <p class="lead" id="result-meta"></p>
+      <div class="tabs" id="result-tabs">
+        <button type="button" class="tab active" data-tab="schedule" onclick="showTab('schedule')">Schedule</button>
+        <button type="button" class="tab" data-tab="generics" onclick="showTab('generics')">Cheaper options</button>
+        <button type="button" class="tab" data-tab="pharmacies" onclick="showTab('pharmacies')">Pharmacies</button>
+        <button type="button" class="tab" data-tab="reasoning" onclick="showTab('reasoning')">How we read it</button>
+      </div>
+      <div id="tab-schedule" class="card"></div>
+      <div id="tab-generics" class="card hidden"></div>
+      <div id="tab-pharmacies" class="card hidden"></div>
+      <div id="tab-reasoning" class="card hidden"></div>
+      <div class="row">
+        <button type="button" class="btn btn-secondary" onclick="showPage('home')">Read another</button>
+      </div>
+    </section>
+
+    <!-- SCAN -->
+    <section id="page-scan" class="page">
+      <p class="eyebrow">Barcode / name</p>
+      <h1>Scan a medicine</h1>
+      <p class="lead">Type a barcode from the pack or a brand name. Demo catalog only — not a full pharmacy database.</p>
+      <div class="card">
+        <label for="scan-input">Barcode or medicine name</label>
+        <input type="text" id="scan-input" placeholder="e.g. 8901101000401 or Telma" oninput="lookupScan()" />
+        <p class="hint">Or tap a sample barcode below.</p>
+      </div>
+      <div id="scan-result"></div>
+      <h2>Sample barcodes</h2>
+      <div class="barcode-list" id="sample-barcodes"></div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="page-about" class="page">
+      <p class="eyebrow">Team Orbit</p>
+      <h1>About MedAssist</h1>
+      <p class="lead">
+        Built at St Joseph Engineering College, Mangalore, for Build for Billions — Agentic AI for Billions.
+      </p>
+      <div class="card">
+        <h2>Team</h2>
+        <table>
+          <tbody>
+            <tr><td><strong>Joylan Dsouza</strong></td><td>Team lead · AI extraction</td></tr>
+            <tr><td><strong>Manvith</strong></td><td>Frontend</td></tr>
+            <tr><td><strong>Amaan</strong></td><td>Generics, pharmacy, catalog</td></tr>
+            <tr><td><strong>Lakshya</strong></td><td>Discharge schedule</td></tr>
+            <tr><td><strong>Denzil</strong></td><td>Barcode scan</td></tr>
+            <tr><td><strong>Clinston</strong></td><td>Testing &amp; documentation</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h2>Safety</h2>
+        <p style="color:var(--muted); margin:0; font-size:0.95rem;">
+          MedAssist does not diagnose, prescribe, or change doses. It interprets text a clinician
+          already wrote, using a demo catalog. Always confirm with a registered doctor or pharmacist.
+          Stock and prices here are sample data.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Not medical advice. Confirm every medicine with your doctor or pharmacist.
+    · Team Orbit · St Joseph Engineering College
+  </footer>
+
+  <script>
+    /* ========== DEMO CATALOG ========== */
+    const MEDICINES = [
+      { id: "telmisartan-40", brand: "Telma 40", salt: "Telmisartan", strength: "40 mg", form: "Tablet", typicalUse: "Blood pressure", rarity: "common", mrp: 118, genericMrp: 42, janAushadhiMrp: 18, barcode: "8901101000401", aliases: ["telma", "telvas", "telsartan", "telmisartan", "tazloc"] },
+      { id: "metformin-500", brand: "Glycomet 500", salt: "Metformin", strength: "500 mg", form: "Tablet", typicalUse: "Type 2 diabetes", rarity: "common", mrp: 38, genericMrp: 16, janAushadhiMrp: 8, barcode: "8901101000502", aliases: ["glycomet", "metformin", "obimet", "gluformin"] },
+      { id: "atorvastatin-10", brand: "Atorva 10", salt: "Atorvastatin", strength: "10 mg", form: "Tablet", typicalUse: "Cholesterol", rarity: "common", mrp: 96, genericMrp: 28, janAushadhiMrp: 12, barcode: "8901101000103", aliases: ["atorva", "atorvastatin", "storvas", "lipikind"] },
+      { id: "pantoprazole-40", brand: "Pan 40", salt: "Pantoprazole", strength: "40 mg", form: "Tablet", typicalUse: "Acidity / gastritis", rarity: "common", mrp: 128, genericMrp: 34, janAushadhiMrp: 14, barcode: "8901101000404", aliases: ["pan", "pantoprazole", "pantocid", "pantodac"] },
+      { id: "paracetamol-650", brand: "Dolo 650", salt: "Paracetamol", strength: "650 mg", form: "Tablet", typicalUse: "Fever and pain", rarity: "common", mrp: 32, genericMrp: 14, janAushadhiMrp: 6, barcode: "8901101000650", aliases: ["dolo", "paracetamol", "crocin", "calpol", "pcm"] },
+      { id: "amox-clav-625", brand: "Augmentin 625", salt: "Amoxicillin + Clavulanate", strength: "625 mg", form: "Tablet", typicalUse: "Bacterial infection", rarity: "common", mrp: 198, genericMrp: 86, janAushadhiMrp: 42, barcode: "8901101000625", aliases: ["augmentin", "clavam", "moxclav", "amoxicillin"] },
+      { id: "azithromycin-500", brand: "Azithral 500", salt: "Azithromycin", strength: "500 mg", form: "Tablet", typicalUse: "Bacterial infection", rarity: "common", mrp: 119, genericMrp: 48, janAushadhiMrp: 22, barcode: "8901101000500", aliases: ["azithral", "azithromycin", "azee"] },
+      { id: "aspirin-75", brand: "Ecosprin 75", salt: "Aspirin", strength: "75 mg", form: "Tablet", typicalUse: "Blood thinning (as prescribed)", rarity: "common", mrp: 12, genericMrp: 6, janAushadhiMrp: 3, barcode: "8901101000075", aliases: ["ecosprin", "aspirin", "disprin", "loprin"] },
+      { id: "amlodipine-5", brand: "Amlong 5", salt: "Amlodipine", strength: "5 mg", form: "Tablet", typicalUse: "Blood pressure", rarity: "common", mrp: 42, genericMrp: 14, janAushadhiMrp: 6, barcode: "8901101000005", aliases: ["amlong", "amlodipine", "stamlo"] },
+      { id: "cetirizine-10", brand: "Cetzine 10", salt: "Cetirizine", strength: "10 mg", form: "Tablet", typicalUse: "Allergy", rarity: "common", mrp: 22, genericMrp: 8, janAushadhiMrp: 3, barcode: "8901101000010", aliases: ["cetzine", "cetirizine", "alerid"] },
+    ];
+
+    const PHARMACIES = [
+      {
+        id: "apollo",
+        name: "Apollo Pharmacy",
+        area: "K.S. Rao Road",
+        address: "Hampankatta, Mangalore",
+        phone: "0824-2421000",
+        hours: "8:00 AM – 10:00 PM",
+        pickupHint: "Counter 2 — ask for generic desk",
+        stock: {
+          "telmisartan-40": 40, "metformin-500": 80, "atorvastatin-10": 25,
+          "pantoprazole-40": 0, "paracetamol-650": 120, "amox-clav-625": 18,
+          "azithromycin-500": 30, "aspirin-75": 50, "amlodipine-5": 22, "cetirizine-10": 40,
+        },
+      },
+      {
+        id: "jan",
+        name: "Jan Aushadhi Kendra",
+        area: "Balmatta",
+        address: "Near Balmatta Circle, Mangalore",
+        phone: "0824-2223344",
+        hours: "9:00 AM – 8:00 PM",
+        pickupHint: "Token queue — Aadhaar helps for scheme rates",
+        stock: {
+          "telmisartan-40": 60, "metformin-500": 100, "atorvastatin-10": 40,
+          "pantoprazole-40": 35, "paracetamol-650": 90, "amox-clav-625": 12,
+          "azithromycin-500": 20, "aspirin-75": 70, "amlodipine-5": 45, "cetirizine-10": 55,
+        },
+      },
+      {
+        id: "local",
+        name: "City Medicals",
+        area: "Bejai",
+        address: "Bejai Main Road, Mangalore",
+        phone: "0824-2211122",
+        hours: "8:30 AM – 9:30 PM",
+        pickupHint: "Ask at billing for same-salt substitutes",
+        stock: {
+          "telmisartan-40": 12, "metformin-500": 30, "atorvastatin-10": 8,
+          "pantoprazole-40": 15, "paracetamol-650": 60, "amox-clav-625": 0,
+          "azithromycin-500": 5, "aspirin-75": 25, "amlodipine-5": 10, "cetirizine-10": 20,
+        },
+      },
+    ];
+
+    const SAMPLE_DISCHARGE = `Patient: Ramesh Kumar, 58 yrs
+Diagnosis: Hypertension, Type 2 DM, Dyslipidemia
+Discharge medicines:
+1. Telma 40 mg — 1-0-0 (morning) — continue
+2. Glycomet 500 mg — 1-0-1 (after food) — continue
+3. Atorva 10 mg — 0-0-1 (night) — continue
+4. Pan 40 mg — 1-0-0 (before breakfast) — 2 weeks
+5. Ecosprin 75 mg — 0-0-1 (after food) — continue
+Follow-up: Cardiology OPD in 2 weeks`;
+
+    const SAMPLE_INFECTION = `Rx
+Azithral 500 mg — 1-0-0 x 3 days
+Augmentin 625 mg — 1-0-1 x 5 days
+Dolo 650 mg — SOS for fever
+Cetzine 10 mg — 0-0-1 x 5 days`;
+
+    /* ========== HELPERS ========== */
+    function findMedicine(name) {
+      const q = name.toLowerCase().replace(/[^a-z0-9+ ]/g, " ").trim();
+      if (!q) return null;
+      return MEDICINES.find((m) =>
+        m.brand.toLowerCase().includes(q) ||
+        m.salt.toLowerCase().includes(q) ||
+        m.aliases.some((a) => q.includes(a) || a.includes(q.split(" ")[0]))
+      ) || null;
+    }
+
+    function findByBarcode(code) {
+      const c = String(code).replace(/\s+/g, "");
+      return MEDICINES.find((m) => m.barcode === c) || null;
+    }
+
+    function parseFrequency(freq) {
+      const f = (freq || "").toLowerCase();
+      if (/sos|as needed|when required/.test(f)) return ["sos"];
+      const triple = f.match(/(\d)\s*[-/]\s*(\d)\s*[-/]\s*(\d)/);
+      if (triple) {
+        const slots = [];
+        if (+triple[1]) slots.push("morning");
+        if (+triple[2]) slots.push("afternoon");
+        if (+triple[3]) slots.push("night");
+        return slots.length ? slots : ["morning"];
+      }
+      if (/bd|twice|1-0-1|morning and night/.test(f)) return ["morning", "night"];
+      if (/tds|thrice|1-1-1/.test(f)) return ["morning", "afternoon", "night"];
+      if (/night|hs|0-0-1/.test(f)) return ["night"];
+      if (/afternoon|0-1-0/.test(f)) return ["afternoon"];
+      return ["morning"];
+    }
+
+    function extractMedicines(text) {
+      const lines = text.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+      const meds = [];
+      const seen = new Set();
+
+      for (const line of lines) {
+        // Skip non-medicine lines
+        if (/^(patient|diagnosis|follow|age|rx)\b/i.test(line) && !/\d+\s*mg/i.test(line)) continue;
+
+        let hit = null;
+        for (const m of MEDICINES) {
+          const tokens = [m.brand, m.salt, ...m.aliases];
+          if (tokens.some((t) => line.toLowerCase().includes(t.toLowerCase()))) {
+            hit = m;
+            break;
+          }
+        }
+        if (!hit) continue;
+        if (seen.has(hit.id)) continue;
+        seen.add(hit.id);
+
+        const freqMatch = line.match(/(\d\s*[-/]\s*\d\s*[-/]\s*\d)|(\bSOS\b)|(\bBD\b)|(\bTDS\b)|(\bHS\b)/i);
+        const durationMatch = line.match(/(\d+\s*(day|days|week|weeks|continue))/i);
+        const timingMatch = line.match(/\(([^)]+)\)/);
+        const sos = /sos/i.test(line);
+
+        meds.push({
+          rawName: hit.brand,
+          medicineId: hit.id,
+          dose: hit.strength,
+          frequency: freqMatch ? freqMatch[0].replace(/\s/g, "") : (sos ? "SOS" : "1-0-0"),
+          timing: timingMatch ? timingMatch[1] : "",
+          duration: durationMatch ? durationMatch[1] : "",
+          sos,
+          purpose: hit.typicalUse,
+          confidence: 0.85,
+        });
+      }
+      return meds;
+    }
+
+    function buildSchedule(meds) {
+      const order = ["morning", "afternoon", "night", "sos"];
+      const labels = { morning: "Morning", afternoon: "Afternoon", night: "Night", sos: "As needed (SOS)" };
+      const map = {};
+      order.forEach((k) => (map[k] = []));
+
+      for (const med of meds) {
+        const slots = med.sos ? ["sos"] : parseFrequency(med.frequency);
+        const how = [med.dose, med.timing, med.duration].filter(Boolean).join(" · ");
+        for (const s of slots) {
+          map[s].push({ name: med.rawName, how: how || med.frequency, purpose: med.purpose });
+        }
+      }
+      return order
+        .filter((k) => map[k].length)
+        .map((k) => ({ when: k, label: labels[k], items: map[k] }));
+    }
+
+    function buildGenerics(meds) {
+      const seen = new Set();
+      const list = [];
+      for (const med of meds) {
+        if (!med.medicineId || seen.has(med.medicineId)) continue;
+        seen.add(med.medicineId);
+        const cat = MEDICINES.find((m) => m.id === med.medicineId);
+        if (!cat) continue;
+        const save = Math.max(0, cat.mrp - cat.janAushadhiMrp);
+        list.push({
+          brand: cat.brand,
+          salt: cat.salt + " " + cat.strength,
+          brandMrp: cat.mrp,
+          genericMrp: cat.genericMrp,
+          janAushadhiMrp: cat.janAushadhiMrp,
+          save,
+          savePct: cat.mrp ? Math.round((save / cat.mrp) * 100) : 0,
+        });
+      }
+      return list;
+    }
+
+    function buildPharmacies(meds) {
+      const ids = meds.map((m) => m.medicineId).filter(Boolean);
+      return PHARMACIES.map((p) => {
+        let inStock = 0;
+        const missing = [];
+        for (const id of ids) {
+          const qty = p.stock[id] || 0;
+          if (qty > 0) inStock++;
+          else {
+            const name = MEDICINES.find((m) => m.id === id)?.brand || id;
+            missing.push(name);
+          }
+        }
+        return { ...p, inStock, total: ids.length, missing };
+      }).sort((a, b) => b.inStock - a.inStock);
+    }
+
+    /* ========== UI ========== */
+    function showPage(name) {
+      document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
+      document.getElementById("page-" + name).classList.add("active");
+      document.querySelectorAll("nav button").forEach((b) => {
+        b.classList.toggle("active", b.dataset.page === name);
+      });
+      window.scrollTo(0, 0);
+    }
+
+    function showTab(name) {
+      ["schedule", "generics", "pharmacies", "reasoning"].forEach((t) => {
+        document.getElementById("tab-" + t).classList.toggle("hidden", t !== name);
+      });
+      document.querySelectorAll(".tab").forEach((b) => {
+        b.classList.toggle("active", b.dataset.tab === name);
+      });
+    }
+
+    function loadSample(kind) {
+      document.getElementById("rx-text").value =
+        kind === "infection" ? SAMPLE_INFECTION : SAMPLE_DISCHARGE;
+      document.getElementById("rx-error").classList.add("hidden");
+    }
+
+    function analyze() {
+      const text = document.getElementById("rx-text").value.trim();
+      const err = document.getElementById("rx-error");
+      if (!text) {
+        err.textContent = "Paste a prescription first (or use a sample).";
+        err.classList.remove("hidden");
+        return;
+      }
+      const meds = extractMedicines(text);
+      if (!meds.length) {
+        err.textContent = "Could not match medicines. Try a sample, or use brand names like Telma, Glycomet, Dolo.";
+        err.classList.remove("hidden");
+        return;
+      }
+      err.classList.add("hidden");
+
+      const schedule = buildSchedule(meds);
+      const generics = buildGenerics(meds);
+      const pharmacies = buildPharmacies(meds);
+      const monthlySave = generics.reduce((s, g) => s + g.save, 0);
+
+      document.getElementById("result-title").textContent =
+        meds.length + " medicine" + (meds.length > 1 ? "s" : "") + " found";
+      document.getElementById("result-meta").textContent =
+        "Local demo parser · approx. save up to ₹" + monthlySave + "/month on Jan Aushadhi bands (sample prices).";
+
+      // Schedule
+      let schHtml = "";
+      for (const slot of schedule) {
+        schHtml += '<div class="slot"><h3>' + slot.label + "</h3>";
+        for (const item of slot.items) {
+          schHtml +=
+            '<div class="med-item"><strong>' +
+            escapeHtml(item.name) +
+            "</strong><span>" +
+            escapeHtml(item.how) +
+            " — " +
+            escapeHtml(item.purpose) +
+            "</span></div>";
+        }
+        schHtml += "</div>";
+      }
+      schHtml +=
+        '<p class="hint">Questions for the next visit: Is any dose temporary? Can any brand be switched to Jan Aushadhi? Any food or timing rules I should follow strictly?</p>';
+      document.getElementById("tab-schedule").innerHTML = schHtml;
+
+      // Generics
+      let genHtml =
+        "<h2>Same-salt cheaper options</h2><p class=\"hint\">Sample MRP bands — confirm with pharmacist.</p><table><thead><tr><th>Prescribed</th><th>Salt</th><th>Brand</th><th>Generic</th><th>Jan Aushadhi</th><th>Save</th></tr></thead><tbody>";
+      for (const g of generics) {
+        genHtml +=
+          "<tr><td>" +
+          escapeHtml(g.brand) +
+          "</td><td>" +
+          escapeHtml(g.salt) +
+          "</td><td>₹" +
+          g.brandMrp +
+          "</td><td>₹" +
+          g.genericMrp +
+          "</td><td>₹" +
+          g.janAushadhiMrp +
+          '</td><td class="save">₹' +
+          g.save +
+          " (" +
+          g.savePct +
+          "%)</td></tr>";
+      }
+      genHtml += "</tbody></table>";
+      document.getElementById("tab-generics").innerHTML = genHtml;
+
+      // Pharmacies
+      let phHtml = "<h2>Nearby pharmacies (demo · Mangalore)</h2>";
+      for (const p of pharmacies) {
+        const badge =
+          p.inStock === p.total
+            ? '<span class="badge badge-ok">All in stock</span>'
+            : p.inStock === 0
+            ? '<span class="badge badge-danger">None in stock</span>'
+            : '<span class="badge badge-warn">' + p.inStock + "/" + p.total + " in stock</span>";
+        phHtml +=
+          '<div class="med-item"><strong>' +
+          escapeHtml(p.name) +
+          " · " +
+          escapeHtml(p.area) +
+          "</strong> " +
+          badge +
+          "<br /><span>" +
+          escapeHtml(p.address) +
+          " · " +
+          escapeHtml(p.hours) +
+          "<br />" +
+          escapeHtml(p.pickupHint) +
+          (p.missing.length
+            ? "<br />Missing: " + escapeHtml(p.missing.join(", "))
+            : "") +
+          "</span></div>";
+      }
+      document.getElementById("tab-pharmacies").innerHTML = phHtml;
+
+      // Reasoning
+      document.getElementById("tab-reasoning").innerHTML =
+        "<h2>How we read it</h2><ol style=\"margin:0;padding-left:1.2rem;color:var(--muted)\">" +
+        "<li>Matched brand / salt names against a demo Indian medicine catalog.</li>" +
+        "<li>Parsed dose patterns like 1-0-0 (morning) and 1-0-1 (morning + night).</li>" +
+        "<li>Built a day schedule and linked each drug to generic / Jan Aushadhi price bands.</li>" +
+        "<li>Checked sample stock at three Mangalore pharmacies.</li>" +
+        "<li>This is a local demo parser — not a diagnosis and not live stock data.</li>" +
+        "</ol>";
+
+      showTab("schedule");
+      showPage("result");
+    }
+
+    function lookupScan() {
+      const q = document.getElementById("scan-input").value.trim();
+      const box = document.getElementById("scan-result");
+      if (!q) {
+        box.innerHTML = "";
+        return;
+      }
+      let med = findByBarcode(q) || findMedicine(q);
+      if (!med) {
+        box.innerHTML =
+          '<div class="card"><p class="error" style="margin:0">Not in the demo catalog. Try a sample barcode below.</p></div>';
+        return;
+      }
+      const rarity =
+        med.rarity === "common"
+          ? '<span class="badge badge-ok">common salt</span>'
+          : '<span class="badge badge-warn">' + med.rarity + " salt</span>";
+      box.innerHTML =
+        '<div class="card"><h2 style="display:inline;margin-right:0.5rem">' +
+        escapeHtml(med.brand) +
+        "</h2>" +
+        rarity +
+        '<p style="color:var(--muted);margin:0.5rem 0">' +
+        escapeHtml(med.salt) +
+        " · " +
+        escapeHtml(med.strength) +
+        " · " +
+        escapeHtml(med.form) +
+        "</p><p style=\"margin:0.35rem 0\">" +
+        escapeHtml(med.typicalUse) +
+        '</p><p class="hint">Brand ₹' +
+        med.mrp +
+        " · Generic ₹" +
+        med.genericMrp +
+        ' · <span class="save">Jan Aushadhi ₹' +
+        med.janAushadhiMrp +
+        "</span></p><p class=\"hint\">Barcode: " +
+        med.barcode +
+        "</p></div>";
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    // Sample barcode buttons
+    (function initBarcodes() {
+      const list = document.getElementById("sample-barcodes");
+      list.innerHTML = MEDICINES.slice(0, 8)
+        .map(
+          (m) =>
+            '<button type="button" onclick="document.getElementById(\'scan-input\').value=\'' +
+            m.barcode +
+            "'; lookupScan();\"><span>" +
+            escapeHtml(m.brand) +
+            '</span><span class="mono">' +
+            m.barcode +
+            "</span></button>"
+        )
+        .join("");
+    })();
+  </script>
+</body>
+</html>
